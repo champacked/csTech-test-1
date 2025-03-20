@@ -6,10 +6,24 @@ function Dashboard({ onLogout }) {
   const [lists, setLists] = useState([]);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [groupedLists, setGroupedLists] = useState({});
 
   useEffect(() => {
     fetchLists();
   }, []);
+
+  useEffect(() => {
+    // Group lists by agent when lists data changes
+    const grouped = lists.reduce((acc, item) => {
+      const agentName = item.agentId?.name || "Unassigned";
+      if (!acc[agentName]) {
+        acc[agentName] = [];
+      }
+      acc[agentName].push(item);
+      return acc;
+    }, {});
+    setGroupedLists(grouped);
+  }, [lists]);
 
   const fetchLists = async () => {
     try {
@@ -76,22 +90,29 @@ function Dashboard({ onLogout }) {
       </div>
 
       <div className="lists-section">
-        <h3>Distributed Lists</h3>
-        <div className="lists-grid">
-          {lists.map((item, index) => (
-            <div key={index} className="list-item">
-              <p>
-                <strong>Name:</strong> {item.firstName}
-              </p>
-              <p>
-                <strong>Phone:</strong> {item.phone}
-              </p>
-              <p>
-                <strong>Notes:</strong> {item.notes}
-              </p>
-              <p>
-                <strong>Agent:</strong> {item.agentId?.name || "Unassigned"}
-              </p>
+        <h3>Distributed Lists by Agent</h3>
+        <div className="agents-grid">
+          {Object.entries(groupedLists).map(([agentName, agentLists]) => (
+            <div key={agentName} className="agent-section">
+              <h4 className="agent-name">{agentName}</h4>
+              <div className="agent-lists">
+                {agentLists.map((item, index) => (
+                  <div key={index} className="list-item">
+                    <p>
+                      <strong>Name:</strong> {item.firstName}
+                    </p>
+                    <p>
+                      <strong>Phone:</strong> {item.phone}
+                    </p>
+                    <p>
+                      <strong>Notes:</strong> {item.notes}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="agent-stats">
+                <p>Total Contacts: {agentLists.length}</p>
+              </div>
             </div>
           ))}
         </div>

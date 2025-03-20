@@ -227,20 +227,38 @@ body {
   color: var(--text-light);
 }
 
-.lists-grid {
+.agents-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  align-items: start;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.agent-section {
+  background-color: var(--card-background);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.agent-name {
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.agent-lists {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .list-item {
-  background-color: var(--card-background);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: var(--background-light);
+  padding: 1.25rem;
+  border-radius: 0.75rem;
   transition: all 0.2s ease;
-  height: 100%;
 }
 
 .list-item:hover {
@@ -249,7 +267,7 @@ body {
 }
 
 .list-item p {
-  margin: 0.75rem 0;
+  margin: 0.5rem 0;
   color: var(--text-light);
   line-height: 1.5;
 }
@@ -257,6 +275,14 @@ body {
 .list-item strong {
   color: var(--primary-color);
   font-weight: 500;
+}
+
+.agent-stats {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  color: var(--text-light);
 }
 
 @media (max-width: 768px) {
@@ -279,7 +305,7 @@ body {
     padding: 1.5rem;
   }
 
-  .lists-grid {
+  .agents-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -295,6 +321,10 @@ body {
   }
 
   .upload-section {
+    padding: 1rem;
+  }
+
+  .agent-section {
     padding: 1rem;
   }
 
@@ -327,5 +357,13 @@ body {
   .upload-section input[type="file"] {
     background-color: var(--background-dark);
     color: var(--text-dark);
+  }
+
+  .agent-section {
+    background-color: var(--card-background);
+  }
+
+  .list-item {
+    background-color: #2d3748;
   }
 }
