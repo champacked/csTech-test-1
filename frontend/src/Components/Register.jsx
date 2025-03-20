@@ -13,7 +13,10 @@ function Register({ onRegister }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:2000/api/auth/register", formData);
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/register`,
+        formData
+      );
       // Instead of calling onRegister, redirect to login
       navigate("/login");
     } catch (err) {

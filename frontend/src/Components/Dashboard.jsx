@@ -34,7 +34,7 @@ function Dashboard({ onLogout }) {
   const fetchLists = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:2000/api/lists/lists",
+        `${import.meta.env.VITE_API_URL}/api/lists/lists`,
         {
           headers: {
             Authorization: localStorage.getItem("token"),
