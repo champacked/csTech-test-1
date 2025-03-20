@@ -23,9 +23,9 @@ body {
   width: 100%;
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 1rem;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -135,7 +135,7 @@ body {
 .dashboard-container {
   width: 100%;
   min-height: 100vh;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
   box-sizing: border-box;
@@ -166,6 +166,7 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 120px;
 }
 
 .header button:hover {
@@ -179,6 +180,9 @@ body {
   border-radius: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 2.5rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .upload-section h3 {
@@ -210,6 +214,8 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  max-width: 200px;
+  margin: 0 auto;
 }
 
 .upload-section button:hover {
@@ -225,12 +231,27 @@ body {
   margin-bottom: 2rem;
   font-size: 1.5rem;
   color: var(--text-light);
+  text-align: center;
 }
 
 .agents-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1024px) {
+  .agents-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1536px) {
+  .agents-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .agent-section {
@@ -238,6 +259,7 @@ body {
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: fit-content;
 }
 
 .agent-name {
