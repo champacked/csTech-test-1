@@ -93,7 +93,19 @@ function Dashboard({ onLogout }) {
           Authorization: localStorage.getItem("token"),
         },
       });
-      setSuccessMessage("Agent added successfully");
+
+      // Trigger redistribution after adding new agent
+      await axios.post(
+        "http://localhost:2000/api/lists/redistribute",
+        {},
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        }
+      );
+
+      setSuccessMessage("Agent added successfully and contacts redistributed");
       setShowAgentForm(false);
       setAgentFormData({ name: "", email: "", mobile: "", password: "" });
       fetchLists();

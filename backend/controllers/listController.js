@@ -42,21 +42,19 @@ exports.uploadList = async (req, res) => {
           );
         }
 
-        // Distribute items among 5 agents
+        // Distribute items among agents
         let distributedLists = items.map((item, index) => ({
           ...item,
-          agentId: agents[index % 5]._id, // Assign agent in round-robin
+          agentId: agents[index % agents.length]._id, // Assign agent in round-robin
         }));
 
         // Save distributed lists in MongoDB
         await List.insertMany(distributedLists);
 
-        res
-          .status(201)
-          .json({
-            msg: "File processed and saved successfully",
-            distributedLists,
-          });
+        res.status(201).json({
+          msg: "File processed and saved successfully",
+          distributedLists,
+        });
       })
       .on("error", (err) => {
         console.error("CSV Parsing Error:", err);
@@ -80,6 +78,70 @@ exports.getDistributedList = async (req, res) => {
     res.status(200).json(lists);
   } catch (error) {
     console.error("Fetch Error:", error);
+    res.status(500).json({ msg: "Server error", error: error.message });
+  }
+};
+
+// Redistribute contacts among all agents
+exports.redistributeContacts = async (req, res) => {
+  try {
+    // Get all agents and contacts
+    const agents = await Agent.find();
+    const contacts = await List.find();
+
+    if (!agents.length) {
+      return res.status(400).json({ msg: "No agents found" });
+    }
+
+    if (!contacts.length) {
+      return res.status(400).json({ msg: "No contacts to redistribute" });
+    }
+
+    // Calculate contacts per agent
+    const contactsPerAgent = Math.floor(contacts.length / agents.length);
+    const remainingContacts = contacts.length % agents.length;
+
+    // Create distribution array
+    let distribution = [];
+    let currentIndex = 0;
+
+    // Distribute contacts evenly among agents
+    for (let i = 0; i < agents.length; i++) {
+      let agentContacts = contactsPerAgent;
+      // Add one more contact for the first 'remainingContacts' agents
+      if (i < remainingContacts) {
+        agentContacts++;
+      }
+
+      // Assign contacts to current agent
+      for (
+        let j = 0;
+        j < agentContacts && currentIndex < contacts.length;
+        j++
+      ) {
+        distribution.push({
+          updateOne: {
+            filter: { _id: contacts[currentIndex]._id },
+            update: { $set: { agentId: agents[i]._id } },
+          },
+        });
+        currentIndex++;
+      }
+    }
+
+    // Execute bulk update
+    if (distribution.length > 0) {
+      await List.bulkWrite(distribution);
+    }
+
+    res.status(200).json({
+      msg: "Contacts redistributed successfully",
+      totalContacts: contacts.length,
+      agentsCount: agents.length,
+      contactsPerAgent,
+    });
+  } catch (error) {
+    console.error("Redistribution Error:", error);
     res.status(500).json({ msg: "Server error", error: error.message });
   }
 };
