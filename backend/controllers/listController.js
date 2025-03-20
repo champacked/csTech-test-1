@@ -17,51 +17,55 @@ exports.uploadList = async (req, res) => {
     let items = [];
     const stream = Readable.from(fileContent);
 
-    stream
-      .pipe(csv({ mapHeaders: ({ header }) => header.trim() }))
-      .on("data", (row) => {
-        if (row.FirstName && row.Phone) {
-          items.push({
-            firstName: row.FirstName.trim(),
-            phone: row.Phone.trim(),
-            notes: row.Notes ? row.Notes.trim() : "",
-          });
-        }
-      })
-      .on("end", async () => {
-        if (items.length === 0) {
-          return res.status(400).json({ msg: "Invalid or empty CSV file" });
-        }
+    // First, get all agents
+    let agents = await Agent.find();
+    if (agents.length < 5) {
+      await Agent.deleteMany(); // Clear existing agents
+      agents = await Agent.insertMany(
+        Array.from({ length: 5 }, (_, i) => ({ name: `Agent ${i + 1}` }))
+      );
+    }
 
-        // Ensure we have exactly 5 agents in the database
-        let agents = await Agent.find();
-        if (agents.length < 5) {
-          await Agent.deleteMany(); // Clear existing agents
-          agents = await Agent.insertMany(
-            Array.from({ length: 5 }, (_, i) => ({ name: `Agent ${i + 1}` }))
-          );
-        }
+    // Create a promise to process the CSV data
+    const processCSV = new Promise((resolve, reject) => {
+      stream
+        .pipe(csv({ mapHeaders: ({ header }) => header.trim() }))
+        .on("data", (row) => {
+          if (row.FirstName && row.Phone) {
+            items.push({
+              firstName: row.FirstName.trim(),
+              phone: row.Phone.trim(),
+              notes: row.Notes ? row.Notes.trim() : "",
+            });
+          }
+        })
+        .on("end", () => resolve(items))
+        .on("error", (error) => reject(error));
+    });
 
-        // Distribute items among agents
-        let distributedLists = items.map((item, index) => ({
-          ...item,
-          agentId: agents[index % agents.length]._id, // Assign agent in round-robin
-        }));
+    // Wait for CSV processing to complete
+    items = await processCSV;
 
-        // Save distributed lists in MongoDB
-        await List.insertMany(distributedLists);
+    if (items.length === 0) {
+      return res.status(400).json({ msg: "Invalid or empty CSV file" });
+    }
 
-        res.status(201).json({
-          msg: "File processed and saved successfully",
-          distributedLists,
-        });
-      })
-      .on("error", (err) => {
-        console.error("CSV Parsing Error:", err);
-        res
-          .status(500)
-          .json({ msg: "Error processing file", error: err.message });
-      });
+    // Clear existing lists before adding new ones
+    await List.deleteMany({});
+
+    // Distribute items among agents
+    const distributedLists = items.map((item, index) => ({
+      ...item,
+      agentId: agents[index % agents.length]._id, // Assign agent in round-robin
+    }));
+
+    // Save distributed lists in MongoDB
+    await List.insertMany(distributedLists);
+
+    res.status(201).json({
+      msg: "File processed and saved successfully",
+      distributedLists,
+    });
   } catch (error) {
     console.error("Server Error:", error);
     res.status(500).json({ msg: "Server error", error: error.message });
