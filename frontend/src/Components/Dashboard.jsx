@@ -7,13 +7,19 @@ function Dashboard({ onLogout }) {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [groupedLists, setGroupedLists] = useState({});
+  const [showAgentForm, setShowAgentForm] = useState(false);
+  const [agentFormData, setAgentFormData] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    password: "",
+  });
 
   useEffect(() => {
     fetchLists();
   }, []);
 
   useEffect(() => {
-    // Group lists by agent when lists data changes
     const grouped = lists.reduce((acc, item) => {
       const agentName = item.agentId?.name || "Unassigned";
       if (!acc[agentName]) {
@@ -72,12 +78,96 @@ function Dashboard({ onLogout }) {
     }
   };
 
+  const handleAgentFormChange = (e) => {
+    setAgentFormData({
+      ...agentFormData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleAgentSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post("http://localhost:2000/api/agents/add", agentFormData, {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+        },
+      });
+      setSuccessMessage("Agent added successfully");
+      setShowAgentForm(false);
+      setAgentFormData({ name: "", email: "", mobile: "", password: "" });
+      fetchLists();
+    } catch (err) {
+      setError(err.response?.data?.msg || "Failed to add agent");
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <div className="header">
         <h2>Dashboard</h2>
-        <button onClick={onLogout}>Logout</button>
+        <div className="header-buttons">
+          <button
+            className="add-agent-btn"
+            onClick={() => setShowAgentForm(true)}
+          >
+            Add Agent
+          </button>
+          <button onClick={onLogout}>Logout</button>
+        </div>
       </div>
+
+      {showAgentForm && (
+        <div className="upload-section">
+          <h3>Add New Agent</h3>
+          {error && <div className="error">{error}</div>}
+          {successMessage && <div className="success">{successMessage}</div>}
+          <form onSubmit={handleAgentSubmit}>
+            <input
+              type="text"
+              name="name"
+              placeholder="Agent Name"
+              value={agentFormData.name}
+              onChange={handleAgentFormChange}
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={agentFormData.email}
+              onChange={handleAgentFormChange}
+              required
+            />
+            <input
+              type="tel"
+              name="mobile"
+              placeholder="Mobile Number"
+              value={agentFormData.mobile}
+              onChange={handleAgentFormChange}
+              required
+            />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={agentFormData.password}
+              onChange={handleAgentFormChange}
+              required
+            />
+            <div className="form-buttons">
+              <button type="submit">Add Agent</button>
+              <button
+                type="button"
+                className="cancel-btn"
+                onClick={() => setShowAgentForm(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="upload-section">
         <h3>Upload CSV File</h3>
