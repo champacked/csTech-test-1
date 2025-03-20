@@ -2,52 +2,137 @@ const csv = require("csv-parser");
 const { Readable } = require("stream");
 const List = require("../models/List");
 const Agent = require("../models/Agent");
+const XLSX = require("xlsx");
+
+// Validate file type
+const validateFileType = (file) => {
+  const allowedTypes = [
+    "text/csv",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  ];
+  const allowedExtensions = [".csv", ".xls", ".xlsx"];
+
+  const fileExtension = "." + file.originalname.split(".").pop().toLowerCase();
+
+  if (!allowedExtensions.includes(fileExtension)) {
+    throw new Error(
+      "Invalid file type. Only CSV, XLS, and XLSX files are allowed."
+    );
+  }
+
+  if (file.mimetype && !allowedTypes.includes(file.mimetype)) {
+    throw new Error(
+      "Invalid file type. Only CSV, XLS, and XLSX files are allowed."
+    );
+  }
+};
+
+// Validate required columns
+const validateColumns = (headers) => {
+  const requiredColumns = ["FirstName", "Phone"];
+  const missingColumns = requiredColumns.filter(
+    (col) => !headers.includes(col)
+  );
+
+  if (missingColumns.length > 0) {
+    throw new Error(`Missing required columns: ${missingColumns.join(", ")}`);
+  }
+};
+
+// Process Excel file
+const processExcelFile = (buffer) => {
+  const workbook = XLSX.read(buffer, { type: "buffer" });
+  const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+  const data = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+  if (data.length < 2) {
+    // At least headers and one row
+    throw new Error("File is empty or contains no data rows");
+  }
+
+  const headers = data[0].map((h) => String(h).trim());
+  validateColumns(headers);
+
+  return data
+    .slice(1)
+    .map((row) => ({
+      firstName: row[headers.indexOf("FirstName")]?.toString().trim() || "",
+      phone: row[headers.indexOf("Phone")]?.toString().trim() || "",
+      notes: row[headers.indexOf("Notes")]?.toString().trim() || "",
+    }))
+    .filter((item) => item.firstName && item.phone);
+};
+
+// Process CSV file
+const processCSVFile = async (fileContent) => {
+  let items = [];
+  let headers = null;
+
+  const stream = Readable.from(fileContent);
+
+  return new Promise((resolve, reject) => {
+    stream
+      .pipe(csv())
+      .on("headers", (csvHeaders) => {
+        headers = csvHeaders.map((h) => h.trim());
+        try {
+          validateColumns(headers);
+        } catch (error) {
+          reject(error);
+        }
+      })
+      .on("data", (row) => {
+        if (row.FirstName && row.Phone) {
+          items.push({
+            firstName: row.FirstName.trim(),
+            phone: row.Phone.trim(),
+            notes: row.Notes ? row.Notes.trim() : "",
+          });
+        }
+      })
+      .on("end", () => resolve(items))
+      .on("error", (error) => reject(error));
+  });
+};
 
 exports.uploadList = async (req, res) => {
   try {
     if (!req.file) {
-      return res
-        .status(400)
-        .json({ msg: "No file uploaded. Please upload a valid CSV file." });
+      return res.status(400).json({
+        msg: "No file uploaded. Please upload a valid CSV, XLS, or XLSX file.",
+      });
     }
 
-    console.log("File received:", req.file);
+    // Validate file type
+    validateFileType(req.file);
 
-    let fileContent = req.file.buffer.toString("utf8").replace(/^\uFEFF/, "");
     let items = [];
-    const stream = Readable.from(fileContent);
+    const fileExtension = req.file.originalname.split(".").pop().toLowerCase();
 
-    // First, get all agents
+    // Process file based on type
+    if (fileExtension === "csv") {
+      const fileContent = req.file.buffer
+        .toString("utf8")
+        .replace(/^\uFEFF/, "");
+      items = await processCSVFile(fileContent);
+    } else {
+      items = processExcelFile(req.file.buffer);
+    }
+
+    if (items.length === 0) {
+      return res.status(400).json({
+        msg: "No valid data found in the file. Please ensure the file contains valid data in the correct format.",
+      });
+    }
+
+    // Get all agents
     let agents = await Agent.find();
     if (agents.length < 5) {
-      await Agent.deleteMany(); // Clear existing agents
+      await Agent.deleteMany();
       agents = await Agent.insertMany(
         Array.from({ length: 5 }, (_, i) => ({ name: `Agent ${i + 1}` }))
       );
-    }
-
-    // Create a promise to process the CSV data
-    const processCSV = new Promise((resolve, reject) => {
-      stream
-        .pipe(csv({ mapHeaders: ({ header }) => header.trim() }))
-        .on("data", (row) => {
-          if (row.FirstName && row.Phone) {
-            items.push({
-              firstName: row.FirstName.trim(),
-              phone: row.Phone.trim(),
-              notes: row.Notes ? row.Notes.trim() : "",
-            });
-          }
-        })
-        .on("end", () => resolve(items))
-        .on("error", (error) => reject(error));
-    });
-
-    // Wait for CSV processing to complete
-    items = await processCSV;
-
-    if (items.length === 0) {
-      return res.status(400).json({ msg: "Invalid or empty CSV file" });
     }
 
     // Clear existing lists before adding new ones
@@ -56,7 +141,7 @@ exports.uploadList = async (req, res) => {
     // Distribute items among agents
     const distributedLists = items.map((item, index) => ({
       ...item,
-      agentId: agents[index % agents.length]._id, // Assign agent in round-robin
+      agentId: agents[index % agents.length]._id,
     }));
 
     // Save distributed lists in MongoDB
@@ -68,7 +153,10 @@ exports.uploadList = async (req, res) => {
     });
   } catch (error) {
     console.error("Server Error:", error);
-    res.status(500).json({ msg: "Server error", error: error.message });
+    res.status(400).json({
+      msg: error.message || "Error processing file",
+      error: error.message,
+    });
   }
 };
 
