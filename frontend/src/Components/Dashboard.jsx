@@ -8,6 +8,8 @@ function Dashboard({ onLogout }) {
   const [successMessage, setSuccessMessage] = useState("");
   const [groupedLists, setGroupedLists] = useState({});
   const [showAgentForm, setShowAgentForm] = useState(false);
+  const [showManageAgents, setShowManageAgents] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState(null);
   const [agentFormData, setAgentFormData] = useState({
     name: "",
     email: "",
@@ -94,7 +96,6 @@ function Dashboard({ onLogout }) {
         },
       });
 
-      // Trigger redistribution after adding new agent
       await axios.post(
         "http://localhost:2000/api/lists/redistribute",
         {},
@@ -114,6 +115,10 @@ function Dashboard({ onLogout }) {
     }
   };
 
+  const handleAgentSelect = (agentName) => {
+    setSelectedAgent(agentName === selectedAgent ? null : agentName);
+  };
+
   return (
     <div className="dashboard-container">
       <div className="header">
@@ -125,9 +130,71 @@ function Dashboard({ onLogout }) {
           >
             Add Agent
           </button>
+          <button
+            className="manage-agents-btn"
+            onClick={() => setShowManageAgents(!showManageAgents)}
+          >
+            Manage Agents
+          </button>
           <button onClick={onLogout}>Logout</button>
         </div>
       </div>
+
+      {showManageAgents && (
+        <div className="manage-agents-section">
+          <h3>Manage Agents</h3>
+          <table className="agents-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Agent Name</th>
+                <th>Contact Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(groupedLists).map(
+                ([agentName, contacts], index) => (
+                  <tr
+                    key={index}
+                    onClick={() => handleAgentSelect(agentName)}
+                    className={
+                      selectedAgent === agentName ? "selected-row" : ""
+                    }
+                  >
+                    <td>{index + 1}</td>
+                    <td>{agentName}</td>
+                    <td className="contact-count">{contacts.length}</td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+
+          {selectedAgent && (
+            <div className="agent-contacts-section">
+              <h4>Contacts for {selectedAgent}</h4>
+              <table className="contacts-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {groupedLists[selectedAgent].map((contact, index) => (
+                    <tr key={index}>
+                      <td>{contact.firstName}</td>
+                      <td>{contact.phone}</td>
+                      <td>{contact.notes}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {showAgentForm && (
         <div className="upload-section">
@@ -189,35 +256,6 @@ function Dashboard({ onLogout }) {
           <input type="file" accept=".csv" onChange={handleFileChange} />
           <button type="submit">Upload</button>
         </form>
-      </div>
-
-      <div className="lists-section">
-        <h3>Distributed Lists by Agent</h3>
-        <div className="agents-grid">
-          {Object.entries(groupedLists).map(([agentName, agentLists]) => (
-            <div key={agentName} className="agent-section">
-              <h4 className="agent-name">{agentName}</h4>
-              <div className="agent-lists">
-                {agentLists.map((item, index) => (
-                  <div key={index} className="list-item">
-                    <p>
-                      <strong>Name:</strong> {item.firstName}
-                    </p>
-                    <p>
-                      <strong>Phone:</strong> {item.phone}
-                    </p>
-                    <p>
-                      <strong>Notes:</strong> {item.notes}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <div className="agent-stats">
-                <p>Total Contacts: {agentLists.length}</p>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );

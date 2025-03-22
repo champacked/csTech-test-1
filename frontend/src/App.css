@@ -11,14 +11,20 @@
   --border-color: #e5e7eb;
 }
 
+/* Base styles */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   background-color: var(--background-light);
   color: var(--text-light);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
+/* Container styles with improved responsiveness */
 .app-container {
   width: 100%;
   min-height: 100vh;
@@ -29,10 +35,11 @@ body {
   box-sizing: border-box;
 }
 
+/* Authentication container with better mobile support */
 .auth-container {
   width: 90%;
   max-width: 400px;
-  padding: 2.5rem;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
   background-color: var(--card-background);
   border-radius: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -48,7 +55,7 @@ body {
   color: var(--text-light);
   text-align: center;
   margin-bottom: 2rem;
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
   font-weight: 600;
 }
 
@@ -58,164 +65,8 @@ body {
   gap: 1.5rem;
 }
 
-.auth-container input {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-}
-
-.auth-container input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
-
-.auth-container button {
-  width: 100%;
-  padding: 0.875rem;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 0.5rem;
-}
-
-.auth-container button:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-.auth-container p {
-  text-align: center;
-  margin-top: 1.5rem;
-  color: var(--text-light);
-}
-
-.auth-container a {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.auth-container a:hover {
-  text-decoration: underline;
-  color: var(--primary-hover);
-}
-
-.error {
-  color: var(--error-color);
-  background-color: rgba(239, 68, 68, 0.1);
-  padding: 0.875rem;
-  border-radius: 0.5rem;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-}
-
-.success {
-  color: var(--success-color);
-  background-color: rgba(16, 185, 129, 0.1);
-  padding: 0.875rem;
-  border-radius: 0.5rem;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-}
-
-/* Dashboard specific styles */
-.dashboard-container {
-  width: 100%;
-  min-height: 100vh;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-  box-sizing: border-box;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2.5rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.header h2 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--text-light);
-}
-
-.header-buttons {
-  display: flex;
-  gap: 1rem;
-}
-
-.header button {
-  padding: 0.75rem 1.5rem;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 120px;
-}
-
-.header button:hover {
-  transform: translateY(-1px);
-}
-
-.add-agent-btn {
-  background-color: var(--primary-color);
-}
-
-.add-agent-btn:hover {
-  background-color: var(--primary-hover);
-}
-
-.upload-section {
-  background-color: var(--card-background);
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2.5rem;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.upload-section h3 {
-  margin: 0 0 1.5rem 0;
-  font-size: 1.5rem;
-  color: var(--text-light);
-}
-
-.upload-section form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.upload-section input[type="file"] {
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px dashed var(--border-color);
-  border-radius: 0.5rem;
-  cursor: pointer;
-}
-
+/* Responsive form inputs */
+.auth-container input,
 .upload-section input[type="text"],
 .upload-section input[type="email"],
 .upload-section input[type="tel"],
@@ -224,141 +75,212 @@ body {
   padding: 0.875rem 1rem;
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
-  font-size: 1rem;
+  font-size: clamp(0.875rem, 2vw, 1rem);
   transition: all 0.2s ease;
   box-sizing: border-box;
-  background-color: var(--card-background);
-  color: var(--text-light);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
-.upload-section input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
-
-.upload-section button {
-  padding: 0.875rem;
+/* Button styles with touch-friendly sizing */
+.auth-container button,
+.upload-section button,
+.header button {
+  width: 100%;
+  padding: clamp(0.75rem, 2vw, 0.875rem);
   background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: 0.5rem;
+  font-size: clamp(0.875rem, 2vw, 1rem);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+
+/* Dashboard layout improvements */
+.dashboard-container {
   width: 100%;
-}
-
-.upload-section button:hover {
-  background-color: var(--primary-hover);
-  transform: translateY(-1px);
-}
-
-.form-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.form-buttons button {
-  flex: 1;
-}
-
-.cancel-btn {
-  background-color: var(--error-color) !important;
-}
-
-.cancel-btn:hover {
-  opacity: 0.9;
-}
-
-.lists-section {
-  margin-top: 2.5rem;
-}
-
-.lists-section h3 {
-  margin-bottom: 2rem;
-  font-size: 1.5rem;
-  color: var(--text-light);
-  text-align: center;
-}
-
-.agents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  min-height: 100vh;
   max-width: 1400px;
   margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2rem);
+  box-sizing: border-box;
 }
 
-.agent-section {
-  background-color: var(--card-background);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  height: fit-content;
-}
-
-.agent-name {
-  color: var(--primary-color);
-  font-size: 1.25rem;
-  margin: 0 0 1.5rem 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--border-color);
-}
-
-.agent-lists {
-  display: grid;
+/* Responsive header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
-.list-item {
-  background-color: var(--background-light);
-  padding: 1.25rem;
-  border-radius: 0.75rem;
+.header h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.header-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Upload section responsiveness */
+.upload-section {
+  background-color: var(--card-background);
+  padding: clamp(1rem, 3vw, 2rem);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2.5rem;
+  width: 100%;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.upload-section h3 {
+  margin: 0 0 1.5rem 0;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  color: var(--text-light);
+}
+
+/* Manage agents section */
+.manage-agents-section {
+  background-color: var(--card-background);
+  padding: clamp(1rem, 3vw, 2rem);
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2.5rem;
+  overflow-x: auto;
+}
+
+/* Table responsiveness */
+.agents-table,
+.contacts-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: var(--card-background);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  min-width: 600px;
+}
+
+.agents-table th,
+.agents-table td,
+.contacts-table th,
+.contacts-table td {
+  padding: clamp(0.5rem, 2vw, 1rem);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.agents-table th,
+.contacts-table th {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+}
+
+.agents-table tbody tr {
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.list-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.agents-table tbody tr:hover {
+  background-color: rgba(79, 70, 229, 0.1);
 }
 
-.list-item p {
-  margin: 0.5rem 0;
-  color: var(--text-light);
-  line-height: 1.5;
+.selected-row {
+  background-color: rgba(79, 70, 229, 0.1);
 }
 
-.list-item strong {
+.contact-count {
+  font-weight: bold;
   color: var(--primary-color);
-  font-weight: 500;
 }
 
-.agent-stats {
-  margin-top: 1rem;
-  padding-top: 1rem;
+.agent-contacts-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
   border-top: 1px solid var(--border-color);
-  font-size: 0.875rem;
-  color: var(--text-light);
+  overflow-x: auto;
 }
 
-@media (max-width: 768px) {
-  .dashboard-container {
-    padding: 1rem;
-  }
+.agent-contacts-section h4 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+  font-size: clamp(1.125rem, 2.5vw, 1.25rem);
+}
 
+.manage-agents-btn {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.manage-agents-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Error and success messages */
+.error,
+.success {
+  padding: clamp(0.75rem, 2vw, 0.875rem);
+  border-radius: 0.5rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: clamp(0.8125rem, 2vw, 0.875rem);
+}
+
+.error {
+  color: var(--error-color);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.success {
+  color: var(--success-color);
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+/* Tablet-specific adjustments */
+@media (max-width: 1024px) {
   .header {
     flex-direction: column;
-    gap: 1rem;
+    align-items: stretch;
     text-align: center;
-    padding: 1rem 0;
+  }
+
+  .header-buttons {
+    justify-content: center;
+  }
+
+  .header button {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0.75rem;
   }
 
   .header-buttons {
     flex-direction: column;
-    width: 100%;
   }
 
   .header button {
@@ -366,41 +288,44 @@ body {
   }
 
   .upload-section {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .form-buttons {
     flex-direction: column;
+    gap: 0.75rem;
   }
 
-  .agents-grid {
-    grid-template-columns: 1fr;
+  .agents-table,
+  .contacts-table {
+    font-size: 0.875rem;
+  }
+
+  .agents-table th,
+  .agents-table td,
+  .contacts-table th,
+  .contacts-table td {
+    padding: 0.75rem;
   }
 }
 
-@media (max-width: 640px) {
+/* Small mobile devices */
+@media (max-width: 480px) {
   .auth-container {
     width: 95%;
-    padding: 1.5rem;
-  }
-
-  .dashboard-container {
-    padding: 0.75rem;
+    padding: 1.25rem;
   }
 
   .upload-section {
     padding: 1rem;
   }
 
-  .agent-section {
-    padding: 1rem;
-  }
-
-  .list-item {
-    padding: 1rem;
+  .header h2 {
+    font-size: 1.5rem;
   }
 }
 
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   :root {
     --background-light: var(--background-dark);
@@ -409,29 +334,76 @@ body {
     --border-color: #4b5563;
   }
 
-  .auth-container {
+  .auth-container,
+  .upload-section,
+  .manage-agents-section {
     background-color: var(--card-background);
   }
 
-  .auth-container input {
+  .auth-container input,
+  .upload-section input {
     background-color: var(--background-dark);
     color: var(--text-dark);
   }
 
-  .list-item {
-    background-color: var(--card-background);
+  .agents-table tbody tr:hover {
+    background-color: rgba(79, 70, 229, 0.2);
   }
 
-  .upload-section input[type="file"] {
-    background-color: var(--background-dark);
-    color: var(--text-dark);
-  }
-
-  .agent-section {
-    background-color: var(--card-background);
+  .selected-row {
+    background-color: rgba(79, 70, 229, 0.2);
   }
 
   .list-item {
     background-color: #2d3748;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+  .auth-container button,
+  .upload-section button,
+  .header button {
+    padding: clamp(0.875rem, 2.5vw, 1rem);
+  }
+
+  .agents-table tbody tr:hover {
+    background-color: transparent;
+  }
+
+  .agents-table tbody tr:active {
+    background-color: rgba(79, 70, 229, 0.1);
+  }
+}
+
+/* High-resolution screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Print styles */
+@media print {
+  .app-container {
+    padding: 0;
+  }
+
+  .header-buttons,
+  .upload-section form,
+  .auth-container button {
+    display: none;
+  }
+
+  .manage-agents-section {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .agents-table th,
+  .contacts-table th {
+    background-color: #f3f4f6 !important;
+    color: #000 !important;
   }
 }
